@@ -1,0 +1,19 @@
+# Local development services only. Spring Boot starts this file automatically
+# (spring-boot-docker-compose) when the app runs with `mvnw spring-boot:run`.
+services:
+  postgres:
+    image: postgres:18.6
+    environment:
+      POSTGRES_DB: assistant
+      POSTGRES_USER: assistant
+      # Dev-only: no password stored in the repository. Safe because the port
+      # is bound to 127.0.0.1, so the database is reachable only from this machine.
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # PostgreSQL 18 images keep their data under /var/lib/postgresql
+      - postgres-data:/var/lib/postgresql
+
+volumes:
+  postgres-data:

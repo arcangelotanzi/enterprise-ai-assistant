@@ -1,3 +1,9 @@
 spring:
   application:
     name: enterprise-ai-assistant
+  jpa:
+    # Flyway owns the schema; Hibernate only checks that entities match it
+    hibernate:
+      ddl-auto: validate
+    # No lazy loading during JSON rendering: controllers work with DTOs only
+    open-in-view: false
