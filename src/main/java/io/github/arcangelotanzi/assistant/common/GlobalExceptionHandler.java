@@ -2,6 +2,7 @@ package io.github.arcangelotanzi.assistant.common;
 
 import io.github.arcangelotanzi.assistant.customer.CustomerNotFoundException;
 import io.github.arcangelotanzi.assistant.customer.EmailAlreadyUsedException;
+import io.github.arcangelotanzi.assistant.order.InvalidDeliveryDateException;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ProblemDetail handleNotFound(CustomerNotFoundException ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
@@ -37,6 +38,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         log.warn("Data Integrity Violation." , ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "The request conflicts with existing data");
+    }
+
+    @ExceptionHandler(InvalidDeliveryDateException.class)
+    public ProblemDetail handleInvalidDateException(InvalidDeliveryDateException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
     }
 
     @Override

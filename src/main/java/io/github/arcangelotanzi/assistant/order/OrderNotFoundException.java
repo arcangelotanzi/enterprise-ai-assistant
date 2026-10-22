@@ -1,6 +1,8 @@
 package io.github.arcangelotanzi.assistant.order;
 
-public class OrderNotFoundException extends RuntimeException {
+import io.github.arcangelotanzi.assistant.common.ResourceNotFoundException;
+
+public class OrderNotFoundException extends ResourceNotFoundException {
     public OrderNotFoundException(Long id) {
         super("No order found with id " + id);
     }
