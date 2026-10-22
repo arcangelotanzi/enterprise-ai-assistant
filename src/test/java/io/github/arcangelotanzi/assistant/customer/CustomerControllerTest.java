@@ -48,7 +48,7 @@ public class CustomerControllerTest {
         assertThat(mvc.get().uri("/api/customers/{id}", 1))
                 .hasStatus(HttpStatus.OK)
                 .bodyJson()
-                .extractingPath("$.name").isEqualTo("Rossi  Forniture S.r.l.");
+                .extractingPath("$.name").isEqualTo("Rossi Forniture S.r.l.");
     }
 
     @Test
