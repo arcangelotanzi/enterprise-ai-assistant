@@ -40,6 +40,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "The request conflicts with existing data");
     }
 
+    // used UNPROCESSABLE_CONTENT because this error is triggered by a requirement violation
+    //422, not 400: the request is well-formed but breaks a business rule. Not 409: nothing in the current state conflicts, the date is wrong on its own
     @ExceptionHandler(InvalidDeliveryDateException.class)
     public ProblemDetail handleInvalidDateException(InvalidDeliveryDateException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());

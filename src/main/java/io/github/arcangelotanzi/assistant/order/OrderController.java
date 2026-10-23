@@ -1,7 +1,5 @@
 package io.github.arcangelotanzi.assistant.order;
 
-import io.github.arcangelotanzi.assistant.customer.CreateCustomerRequest;
-import io.github.arcangelotanzi.assistant.customer.CustomerResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

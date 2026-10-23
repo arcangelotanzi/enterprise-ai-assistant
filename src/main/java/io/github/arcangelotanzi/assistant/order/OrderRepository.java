@@ -15,12 +15,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             and o.promisedDeliveryDate < :today
             order by o.promisedDeliveryDate
             """)
-
-    // the customer attribute in Order class is declared LAZY. It means that whenever you get an
-    // order form the db, it never returns the customer associated.
-    // For retrieve the customer, you need the annotation @EntityGraph. In this way you are saying:
-    // for this query I want the db retrieve also the customer information.
-    // This annotation turns into a join into the query.
+    // Order.customer is LAZY: without a graph, each getCustomer() access on the results
+    // triggers one extra query (N+1). The graph fetches customers in the same query via a join.
+    // Verified by OrderRepositoryTest#findLateOrdersLoadsCustomersInASingleQuery (1 query vs 4).
     @EntityGraph(attributePaths = "customer")
     List<Order> findLateOrders(@Param("today") LocalDate today);
 }

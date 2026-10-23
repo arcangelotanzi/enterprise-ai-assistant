@@ -14,9 +14,10 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    // LAZY: loading the customer is decided per query (see OrderRepository#findLateOrders).
+    // optional = false: an order cannot exist without a customer (customer_id is NOT NULL).
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id")
-    //TODO: aggiungi spiegazione @ManyToOne e @JoinColumn
     private Customer customer;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
