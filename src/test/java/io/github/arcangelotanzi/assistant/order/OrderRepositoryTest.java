@@ -2,6 +2,8 @@ package io.github.arcangelotanzi.assistant.order;
 
 import io.github.arcangelotanzi.assistant.TestcontainersConfiguration;
 import io.github.arcangelotanzi.assistant.customer.Customer;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 @Import(TestcontainersConfiguration.class)
 class OrderRepositoryTest {
 
@@ -88,7 +90,44 @@ class OrderRepositoryTest {
         return new Order(customer, promisedDeliveryDate.minusDays(7), promisedDeliveryDate, new BigDecimal("100.00"));
     }
 
+    private Order orderForACustomerPromisedOn(Customer owner, LocalDate promisedDeliveryDate) {
+        return new Order(owner, promisedDeliveryDate.minusDays(7), promisedDeliveryDate, new BigDecimal("100.00"));
+    }
+
     private Order persist(Order order) {
         return entityManager.persist(order);
+    }
+
+    @Test
+    void findLateOrdersLoadsCustomersInASingleQuery() {
+        // Arrange:
+        Customer qui = entityManager.persist(new Customer("Qui", "qui@test.example", null));
+        Customer quo = entityManager.persist(new Customer("Quo", "quo@test.example", null));
+        Customer qua = entityManager.persist(new Customer("Qua", "qua@test.example", null));
+
+        persist(orderForACustomerPromisedOn(qui, TODAY.minusDays(2)));
+        persist(orderForACustomerPromisedOn(quo, TODAY.minusDays(2)));
+        persist(orderForACustomerPromisedOn(qua, TODAY.minusDays(2)));
+        //persist does not write yet on the db, all the data are stored in a local cache.
+        // flush() persist those data in the db.
+        entityManager.flush();
+        // we use clear() for wipe all the data written in the local cache, for made the application
+        // read from the effective db and not from the cache.
+        entityManager.clear();
+
+        Statistics statistics = entityManager.getEntityManager()
+                .getEntityManagerFactory()
+                .unwrap(SessionFactory.class)
+                .getStatistics();
+        statistics.clear();   // azzera i contatori: contiamo solo quello che succede DOPO
+
+        // Act:
+        List<Order> lateOrders = orderRepository.findLateOrders(TODAY);
+
+        // Assert:
+        assertThat(lateOrders).extracting(o ->
+                o.getCustomer().getName()).containsExactlyInAnyOrder("Qui", "Quo", "Qua");
+
+        assertThat(statistics.getPrepareStatementCount()).isEqualTo(1);
     }
 }

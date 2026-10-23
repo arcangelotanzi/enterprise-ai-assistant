@@ -16,6 +16,7 @@ public class Order {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id")
+    //TODO: aggiungi spiegazione @ManyToOne e @JoinColumn
     private Customer customer;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
