@@ -124,6 +124,15 @@ class ApiIntegrationTest {
         assertThat(orderRepository.count()).isZero();
     }
 
+    @Test
+    void openApiDocumentDescribesTheEndpoints() {
+        assertThat(mvc.get().uri("/v3/api-docs"))
+                .hasStatusOk()
+                .bodyJson()
+                // Bracket notation because the key contains slashes
+                .extractingPath("$.paths['/api/orders/late']").isNotNull();
+    }
+
     private MvcTestResult createCustomer(String name, String email) {
         return mvc.post().uri("/api/customers")
                 .contentType(MediaType.APPLICATION_JSON)
