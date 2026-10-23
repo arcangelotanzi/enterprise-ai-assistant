@@ -1,3 +1,22 @@
 spring:
   application:
     name: enterprise-ai-assistant
+  # ProblemDetails return errors as RFC 9457 ProblemDetail
+  # not needed anymore because we extended GlobalExceptionHandler with ResponseEntityExceptionHandler
+  # so spring will deactivate its default one
+  mvc:
+    problemdetails:
+      enabled: false
+
+  # I need this cuz I want spring give me errors only in english
+  web:
+    locale: en
+    locale-resolver: fixed
+  jpa:
+    # Flyway owns the schema; Hibernate only checks that entities match it
+    hibernate:
+      ddl-auto: validate
+    # No lazy loading during JSON rendering: controllers work with DTOs only
+    open-in-view: false
+app:
+  time-zone: Europe/Rome
