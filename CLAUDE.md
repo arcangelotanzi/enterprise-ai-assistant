@@ -19,10 +19,12 @@ customers and orders on PostgreSQL; a local LLM with read-only tools is planned 
 - Ask before destructive commands (docker compose down -v, git push --force, git reset --hard, deleting files, git checkout -- / git restore)
 - For changes touching more than one file, propose a plan and wait for approval before editing
 - at the end of the task, explain what you have done
+- Run ./mvnw spotless:apply before ./mvnw verify. 
 
 ## Commands
 
 Use the Maven Wrapper (`./mvnw`; on Windows PowerShell `.\mvnw`). Docker must be running for tests and for `spring-boot:run`.
+./mvnw spotless:apply        # format all Java sources (verify fails on unformatted code)
 
 ```bash
 ./mvnw verify                                        # full build + all tests (Testcontainers starts PostgreSQL)
