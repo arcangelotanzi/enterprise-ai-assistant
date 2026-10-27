@@ -29,8 +29,10 @@
 	<properties>
 		<java.version>25</java.version>
 		<springdoc.version>3.1.1</springdoc.version>
+		<spotless.version>3.10.4</spotless.version>
 		<!-- Empty default, so that "@{argLine}" in the surefire configuration resolves when no other plugin sets it -->
 		<argLine/>
+		<palantirJavaFormat.version>2.102.0</palantirJavaFormat.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -147,6 +149,28 @@
 				<configuration>
 					<argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless.version}</version>
+				<configuration>
+					<java>
+						<palantirJavaFormat>
+							<version>${palantirJavaFormat.version}</version>
+						</palantirJavaFormat>
+						<removeUnusedImports/>
+						<importOrder/>
+					</java>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<!-- Bound to the verify phase by default: the build fails on unformatted code -->
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
