@@ -1,21 +1,20 @@
 package io.github.arcangelotanzi.assistant.customer;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceTest {
@@ -28,15 +27,14 @@ class CustomerServiceTest {
 
     @Test
     void findAllConvertsEveryCustomer() {
-        when(customerRepository.findAll()).thenReturn(List.of(
-                new Customer("Rossi S.r.l.", "rossi@test.example", null),
-                new Customer("Bianchi S.p.A.", "bianchi@test.example", "+39 02 1234567")));
+        when(customerRepository.findAll())
+                .thenReturn(List.of(
+                        new Customer("Rossi S.r.l.", "rossi@test.example", null),
+                        new Customer("Bianchi S.p.A.", "bianchi@test.example", "+39 02 1234567")));
 
         List<CustomerResponse> result = customerService.findAll();
 
-        assertThat(result)
-                .extracting(CustomerResponse::name)
-                .containsExactly("Rossi S.r.l.", "Bianchi S.p.A.");
+        assertThat(result).extracting(CustomerResponse::name).containsExactly("Rossi S.r.l.", "Bianchi S.p.A.");
     }
 
     @Test
@@ -80,8 +78,8 @@ class CustomerServiceTest {
         when(customerRepository.findByEmail("rossi@test.example"))
                 .thenReturn(Optional.of(new Customer("Rossi S.r.l.", "rossi@test.example", null)));
 
-        assertThatThrownBy(() -> customerService.create(
-                new CreateCustomerRequest("Altro nome", "rossi@test.example", null)))
+        assertThatThrownBy(() ->
+                        customerService.create(new CreateCustomerRequest("Altro nome", "rossi@test.example", null)))
                 .isInstanceOf(EmailAlreadyUsedException.class);
 
         verify(customerRepository, never()).save(any());

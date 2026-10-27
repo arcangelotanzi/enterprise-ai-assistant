@@ -1,12 +1,11 @@
 package io.github.arcangelotanzi.assistant.order;
 
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -30,10 +29,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponse> create(
-            @Valid
-            @RequestBody
-            CreateOrderRequest request) {
+    public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request) {
         OrderResponse orderCreated = orderService.create(request);
         URI uri = URI.create("/api/orders/" + orderCreated.id());
         return ResponseEntity.created(uri).body(orderCreated);

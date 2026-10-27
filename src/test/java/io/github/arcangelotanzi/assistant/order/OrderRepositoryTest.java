@@ -1,7 +1,13 @@
 package io.github.arcangelotanzi.assistant.order;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.github.arcangelotanzi.assistant.TestcontainersConfiguration;
 import io.github.arcangelotanzi.assistant.customer.Customer;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,13 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 @Import(TestcontainersConfiguration.class)
@@ -44,16 +43,16 @@ class OrderRepositoryTest {
         // Arrange: one order per case, plus a second late order that is older than the first
         Order lateYesterday = persist(orderPromisedOn(TODAY.minusDays(1)));
         Order lateTenDaysAgo = persist(orderPromisedOn(TODAY.minusDays(10)));
-        persist(orderPromisedOn(TODAY));                 // due today: not late yet
-        persist(orderPromisedOn(TODAY.plusDays(3)));     // future: not late
+        persist(orderPromisedOn(TODAY)); // due today: not late yet
+        persist(orderPromisedOn(TODAY.plusDays(3))); // future: not late
 
         Order delivered = orderPromisedOn(TODAY.minusDays(5));
         delivered.markDelivered(Instant.parse("2026-10-18T10:00:00Z"));
-        persist(delivered);                              // closed: not late
+        persist(delivered); // closed: not late
 
         Order cancelled = orderPromisedOn(TODAY.minusDays(5));
         cancelled.cancel();
-        persist(cancelled);                              // closed: not late
+        persist(cancelled); // closed: not late
 
         entityManager.flush();
         entityManager.clear();
@@ -62,9 +61,7 @@ class OrderRepositoryTest {
         List<Order> result = orderRepository.findLateOrders(TODAY);
 
         // Assert: exactly the two late orders, oldest promise first
-        assertThat(result)
-                .extracting(Order::getId)
-                .containsExactly(lateTenDaysAgo.getId(), lateYesterday.getId());
+        assertThat(result).extracting(Order::getId).containsExactly(lateTenDaysAgo.getId(), lateYesterday.getId());
     }
 
     @Test
@@ -95,8 +92,10 @@ class OrderRepositoryTest {
     void findLateOrdersReturnsAPastDueOrderIfAndOnlyIfItsStatusIsOpen(OrderStatus status) {
         // Arrange: Order has no setters by design, so the row is written with native SQL.
         // delivered_at must be set iff status is DELIVERED (ck_orders_delivered_consistency).
-        entityManager.flush();   // the customer row must exist before the native INSERT (FK)
-        entityManager.getEntityManager().createNativeQuery("""
+        entityManager.flush(); // the customer row must exist before the native INSERT (FK)
+        entityManager
+                .getEntityManager()
+                .createNativeQuery("""
                         insert into orders (customer_id, status, order_date, promised_delivery_date, delivered_at, total_amount)
                         values (:customerId, :status, :orderDate, :promisedDate,
                                 case when :status = 'DELIVERED' then timestamptz '2026-10-18 10:00:00+00' end,
@@ -147,25 +146,27 @@ class OrderRepositoryTest {
         persist(orderForACustomerPromisedOn(qui, TODAY.minusDays(2)));
         persist(orderForACustomerPromisedOn(quo, TODAY.minusDays(2)));
         persist(orderForACustomerPromisedOn(qua, TODAY.minusDays(2)));
-        //persist does not write yet on the db, all the data are stored in a local cache.
+        // persist does not write yet on the db, all the data are stored in a local cache.
         // flush() persist those data in the db.
         entityManager.flush();
         // we use clear() for wipe all the data written in the local cache, for made the application
         // read from the effective db and not from the cache.
         entityManager.clear();
 
-        Statistics statistics = entityManager.getEntityManager()
+        Statistics statistics = entityManager
+                .getEntityManager()
                 .getEntityManagerFactory()
                 .unwrap(SessionFactory.class)
                 .getStatistics();
-        statistics.clear();   // azzera i contatori: contiamo solo quello che succede DOPO
+        statistics.clear(); // azzera i contatori: contiamo solo quello che succede DOPO
 
         // Act:
         List<Order> lateOrders = orderRepository.findLateOrders(TODAY);
 
         // Assert:
-        assertThat(lateOrders).extracting(o ->
-                o.getCustomer().getName()).containsExactlyInAnyOrder("Qui", "Quo", "Qua");
+        assertThat(lateOrders)
+                .extracting(o -> o.getCustomer().getName())
+                .containsExactlyInAnyOrder("Qui", "Quo", "Qua");
 
         assertThat(statistics.getPrepareStatementCount()).isEqualTo(1);
     }

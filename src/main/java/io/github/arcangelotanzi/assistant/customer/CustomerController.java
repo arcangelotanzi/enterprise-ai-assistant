@@ -1,12 +1,11 @@
 package io.github.arcangelotanzi.assistant.customer;
 
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -30,10 +29,7 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> create(
-            @Valid
-            @RequestBody
-            CreateCustomerRequest request) {
+    public ResponseEntity<CustomerResponse> create(@Valid @RequestBody CreateCustomerRequest request) {
         CustomerResponse customerCreated = customerService.create(request);
         URI uri = URI.create("/api/customers/" + customerCreated.id());
         return ResponseEntity.created(uri).body(customerCreated);

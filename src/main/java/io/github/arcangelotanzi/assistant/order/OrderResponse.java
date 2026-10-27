@@ -1,7 +1,6 @@
 package io.github.arcangelotanzi.assistant.order;
 
 import io.github.arcangelotanzi.assistant.customer.Customer;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -19,7 +18,8 @@ public record OrderResponse(
 
     public static OrderResponse from(Order order) {
         Customer customer = order.getCustomer();
-        return new OrderResponse(order.getId(),
+        return new OrderResponse(
+                order.getId(),
                 customer.getId(),
                 customer.getName(),
                 order.getStatus(),

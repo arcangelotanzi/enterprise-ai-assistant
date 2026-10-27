@@ -1,14 +1,15 @@
 package io.github.arcangelotanzi.assistant.order;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import io.github.arcangelotanzi.assistant.customer.Customer;
 import io.github.arcangelotanzi.assistant.customer.CustomerNotFoundException;
 import io.github.arcangelotanzi.assistant.customer.CustomerRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -16,13 +17,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -38,7 +37,8 @@ class OrderServiceTest {
     @Test
     void findLateOrdersComputesDaysLateAndIncludesContactDetails() {
         Customer customer = new Customer("Rossi S.r.l.", "rossi@test.example", "+39 02 1234567");
-        Order order = new Order(customer, LocalDate.of(2026, 10, 10), LocalDate.of(2026, 10, 18), new BigDecimal("1250.00"));
+        Order order =
+                new Order(customer, LocalDate.of(2026, 10, 10), LocalDate.of(2026, 10, 18), new BigDecimal("1250.00"));
         when(orderRepository.findLateOrders(any())).thenReturn(List.of(order));
 
         List<LateOrderResponse> result = serviceAt("2026-10-21T10:00:00Z").findLateOrders();

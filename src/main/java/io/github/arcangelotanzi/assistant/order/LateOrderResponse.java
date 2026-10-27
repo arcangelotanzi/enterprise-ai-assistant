@@ -1,7 +1,6 @@
 package io.github.arcangelotanzi.assistant.order;
 
 import io.github.arcangelotanzi.assistant.customer.Customer;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

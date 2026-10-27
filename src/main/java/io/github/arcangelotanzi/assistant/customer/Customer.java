@@ -1,9 +1,8 @@
 package io.github.arcangelotanzi.assistant.customer;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Generated;
-
 import java.time.Instant;
+import org.hibernate.annotations.Generated;
 
 @Entity
 @Table(name = "customers")
@@ -11,9 +10,11 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String email;
     private String phone;
+
     @Generated
     @Column(insertable = false, updatable = false)
     private Instant createdAt;

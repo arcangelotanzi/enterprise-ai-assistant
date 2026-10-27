@@ -1,15 +1,14 @@
 package io.github.arcangelotanzi.assistant.customer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.github.arcangelotanzi.assistant.TestcontainersConfiguration;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import(TestcontainersConfiguration.class)

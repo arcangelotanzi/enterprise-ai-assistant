@@ -1,13 +1,12 @@
 package io.github.arcangelotanzi.assistant.order;
 
-import io.github.arcangelotanzi.assistant.customer.Customer;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
+import io.github.arcangelotanzi.assistant.customer.Customer;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class OrderTest {
 
@@ -59,7 +58,6 @@ public class OrderTest {
         LocalDate today = LocalDate.of(2026, 10, 21);
         Order order = new Order(c, today.minusDays(20), today.minusDays(1), BigDecimal.ONE);
         order.cancel();
-        assertThatThrownBy(() -> order.markDelivered(Instant.now()))
-                .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> order.markDelivered(Instant.now())).isInstanceOf(IllegalStateException.class);
     }
 }

@@ -2,11 +2,10 @@ package io.github.arcangelotanzi.assistant.order;
 
 import io.github.arcangelotanzi.assistant.customer.Customer;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Generated;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import org.hibernate.annotations.Generated;
 
 @Entity
 @Table(name = "orders")
@@ -19,13 +18,17 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
     private LocalDate orderDate;
     private LocalDate promisedDeliveryDate;
     private Instant deliveredAt;
+
     @Column(precision = 12, scale = 2)
     private BigDecimal totalAmount;
+
     @Generated
     @Column(insertable = false, updatable = false)
     private Instant createdAt;
@@ -72,12 +75,12 @@ public class Order {
         return createdAt;
     }
 
-    public boolean isLateOn(LocalDate today){
+    public boolean isLateOn(LocalDate today) {
         return status.isOpen() && promisedDeliveryDate.isBefore(today);
     }
 
-    public void markDelivered(Instant deliveredAt){
-        if(!this.status.isOpen()){
+    public void markDelivered(Instant deliveredAt) {
+        if (!this.status.isOpen()) {
             throw new IllegalStateException("Cannot mark order " + this.id + " as delivered: status is " + this.status);
         }
         this.status = OrderStatus.DELIVERED;
@@ -85,7 +88,7 @@ public class Order {
     }
 
     public void cancel() {
-        if(!this.status.isOpen()){
+        if (!this.status.isOpen()) {
             throw new IllegalStateException("Cannot cancel order " + this.id + ": status is " + this.status);
         }
         this.status = OrderStatus.CANCELLED;
