@@ -29,6 +29,8 @@
 	<properties>
 		<java.version>25</java.version>
 		<springdoc.version>3.1.1</springdoc.version>
+		<!-- Empty default, so that "@{argLine}" in the surefire configuration resolves when no other plugin sets it -->
+		<argLine/>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -123,6 +125,27 @@
 				  <profiles>
 				    <profile>dev</profile>
 				  </profiles>
+				</configuration>
+			</plugin>
+			<!-- Load Mockito as an explicit Java agent instead of letting it self-attach at runtime,
+			     which future JDKs will block. See Mockito javadoc, section 0.3 (Java 21+). -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<!-- Defines ${org.mockito:mockito-core:jar} as the path of the resolved jar -->
+							<goal>properties</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
 				</configuration>
 			</plugin>
 		</plugins>
