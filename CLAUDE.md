@@ -14,7 +14,7 @@ customers and orders on PostgreSQL; a local LLM with read-only tools is planned 
 - Before declaring closed a task, run ./mvnw verify and read failures/errors
 - Whenever you write a new functionality, write his test
 - For every new test: temporarily break the code under test, confirm the test fails, then restore it
-- When you break the code for tests, do it do not leave any change in production files, always manually cancel them and then show git diff 
+- Never leave temporary breakage in production files: revert it manually and show git diff to prove the file is unchanged 
 - Request DTOs never contain ids, status or dates the server decides (use the Clock)
 - Ask before destructive commands (docker compose down -v, git push --force, git reset --hard, deleting files, git checkout -- / git restore)
 - For changes touching more than one file, propose a plan and wait for approval before editing
