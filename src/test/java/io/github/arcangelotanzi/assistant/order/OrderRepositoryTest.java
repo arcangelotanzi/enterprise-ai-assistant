@@ -6,6 +6,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
@@ -84,6 +86,43 @@ class OrderRepositoryTest {
         entityManager.clear();
 
         assertThat(orderRepository.findLateOrders(TODAY)).isEmpty();
+    }
+
+    // "Open" is defined twice: in the @Query (NOT IN DELIVERED, CANCELLED) and in OrderStatus.isOpen().
+    // This test fails as soon as the two diverge, also for statuses added in the future.
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(OrderStatus.class)
+    void findLateOrdersReturnsAPastDueOrderIfAndOnlyIfItsStatusIsOpen(OrderStatus status) {
+        // Arrange: Order has no setters by design, so the row is written with native SQL.
+        // delivered_at must be set iff status is DELIVERED (ck_orders_delivered_consistency).
+        entityManager.flush();   // the customer row must exist before the native INSERT (FK)
+        entityManager.getEntityManager().createNativeQuery("""
+                        insert into orders (customer_id, status, order_date, promised_delivery_date, delivered_at, total_amount)
+                        values (:customerId, :status, :orderDate, :promisedDate,
+                                case when :status = 'DELIVERED' then timestamptz '2026-10-18 10:00:00+00' end,
+                                100.00)
+                        """)
+                .setParameter("customerId", customer.getId())
+                .setParameter("status", status.name())
+                .setParameter("orderDate", TODAY.minusDays(12))
+                .setParameter("promisedDate", TODAY.minusDays(5))
+                .executeUpdate();
+        entityManager.clear();
+
+        // Act
+        List<Order> result = orderRepository.findLateOrders(TODAY);
+
+        // Assert
+        if (status.isOpen()) {
+            assertThat(result)
+                    .as("past-due order in open status %s must be late", status)
+                    .extracting(Order::getStatus)
+                    .containsExactly(status);
+        } else {
+            assertThat(result)
+                    .as("past-due order in closed status %s must not be late", status)
+                    .isEmpty();
+        }
     }
 
     private Order orderPromisedOn(LocalDate promisedDeliveryDate) {
