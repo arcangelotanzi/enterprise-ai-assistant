@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-migrations.sh\""
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "ask": [
+      "Bash(docker compose down *)",
+      "PowerShell(docker compose down *)",
+      "Bash(git reset --hard *)",
+      "PowerShell(git reset --hard *)",
+      "Bash(git checkout -- *)",
+      "PowerShell(git checkout -- *)",
+      "Bash(git restore *)",
+      "PowerShell(git restore *)",
+      "Bash(git push --force *)",
+      "PowerShell(git push --force *)",
+      "Bash(git push -f *)",
+      "PowerShell(git push -f *)",
+      "Bash(git clean *)",
+      "PowerShell(git clean *)",
+      "Bash(rm -rf *)",
+      "PowerShell(rm -rf *)",
+      "PowerShell(Remove-Item *)"
+    ]
+  }
+}
